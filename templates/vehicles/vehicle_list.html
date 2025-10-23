@@ -17,36 +17,103 @@
     </div>
 
     <!-- Search and Filters -->
-    <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <form method="get" class="space-y-4">
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                    <div>
-                        <label for="{{ search_form.search.id_for_label }}" class="block text-sm font-medium text-gray-700">Qidirish</label>
-                        {{ search_form.search }}
-                    </div>
-                    <div>
-                        <label for="{{ search_form.make.id_for_label }}" class="block text-sm font-medium text-gray-700">Marka</label>
-                        {{ search_form.make }}
-                    </div>
-                    <div>
-                        <label for="{{ search_form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">Holat</label>
-                        {{ search_form.status }}
-                    </div>
-                    <div>
-                        <label for="{{ search_form.min_price.id_for_label }}" class="block text-sm font-medium text-gray-700">Min narx</label>
-                        {{ search_form.min_price }}
-                    </div>
-                    <div>
-                        <label for="{{ search_form.max_price.id_for_label }}" class="block text-sm font-medium text-gray-700">Max narx</label>
-                        {{ search_form.max_price }}
+    <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-primary to-secondary px-6 py-4">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-search text-white text-lg"></i>
                     </div>
                 </div>
-                <div class="flex justify-end">
-                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary">
-                        <i class="fas fa-search mr-2"></i>
-                        Qidirish
-                    </button>
+                <div class="ml-4">
+                    <h2 class="text-xl font-bold text-white">Mashina qidirish</h2>
+                    <p class="text-blue-100 text-sm">Kerakli mashinani toping</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="px-6 py-6">
+            <form method="get" class="space-y-6">
+                <!-- Asosiy qidiruv -->
+                <div class="space-y-4">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" name="search" value="{{ search_form.search.value|default:'' }}" 
+                               placeholder="Mashina nomi, raqami, markasi yoki modeli bo'yicha qidiring..." 
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm">
+                    </div>
+                </div>
+                
+                <!-- Filtrlar -->
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-tags text-gray-400 mr-2 text-xs"></i>
+                            Marka
+                        </label>
+                        <div class="relative">
+                            {{ search_form.make }}
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-list text-gray-400 mr-2 text-xs"></i>
+                            Holat
+                        </label>
+                        <div class="relative">
+                            {{ search_form.status }}
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-arrow-up text-gray-400 mr-2 text-xs"></i>
+                            Min narx
+                        </label>
+                        <div class="relative">
+                            {{ search_form.min_price }}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 text-sm">so'm</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-arrow-down text-gray-400 mr-2 text-xs"></i>
+                            Max narx
+                        </label>
+                        <div class="relative">
+                            {{ search_form.max_price }}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 text-sm">so'm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tugmalar -->
+                <div class="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 transform hover:scale-105">
+                            <i class="fas fa-search mr-2"></i>
+                            Qidirish
+                        </button>
+                        <a href="{% url 'vehicle_list' %}" class="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200">
+                            <i class="fas fa-times mr-2"></i>
+                            Tozalash
+                        </a>
+                    </div>
+                    
+                    {% if search_form.search.value or search_form.make.value or search_form.status.value or search_form.min_price.value or search_form.max_price.value %}
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="fas fa-filter mr-2"></i>
+                        <span>Filtrlar qo'llanilmoqda</span>
+                    </div>
+                    {% endif %}
                 </div>
             </form>
         </div>

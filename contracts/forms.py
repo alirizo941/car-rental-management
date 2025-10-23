@@ -10,17 +10,56 @@ class ContractForm(forms.ModelForm):
                  'owner_share_percent', 'company_share_percent', 'fixed_payout_amount',
                  'min_rental_days', 'enforce_min_rental_days', 'notes']
         widgets = {
-            'owner': forms.Select(attrs={'class': 'form-control'}),
-            'vehicle': forms.Select(attrs={'class': 'form-control'}),
-            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'pricing_type': forms.Select(attrs={'class': 'form-control'}),
-            'owner_share_percent': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Egasi ulushi (%)'}),
-            'company_share_percent': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Kompaniya ulushi (%)'}),
-            'fixed_payout_amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Belgilangan to\'lov'}),
-            'min_rental_days': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Minimal ijara kunlari'}),
-            'enforce_min_rental_days': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Qo\'shimcha ma\'lumotlar'})
+            'owner': forms.Select(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md'
+            }),
+            'vehicle': forms.Select(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md'
+            }),
+            'start_date': forms.DateInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md',
+                'type': 'date'
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md',
+                'type': 'date'
+            }),
+            'pricing_type': forms.Select(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md'
+            }),
+            'owner_share_percent': forms.NumberInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md',
+                'step': '0.01',
+                'placeholder': 'Egasi ulushi (%)',
+                'min': '0',
+                'max': '100'
+            }),
+            'company_share_percent': forms.NumberInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md',
+                'step': '0.01',
+                'placeholder': 'Kompaniya ulushi (%)',
+                'min': '0',
+                'max': '100'
+            }),
+            'fixed_payout_amount': forms.NumberInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md',
+                'step': '1000',
+                'placeholder': 'Belgilangan to\'lov (so\'m)',
+                'min': '0'
+            }),
+            'min_rental_days': forms.NumberInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md',
+                'placeholder': 'Minimal ijara kunlari',
+                'min': '1'
+            }),
+            'enforce_min_rental_days': forms.CheckboxInput(attrs={
+                'class': 'h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded'
+            }),
+            'notes': forms.Textarea(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md',
+                'rows': 3,
+                'placeholder': 'Qo\'shimcha ma\'lumotlar'
+            })
         }
 
     def __init__(self, *args, **kwargs):

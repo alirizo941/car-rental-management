@@ -55,13 +55,17 @@ class Vehicle(models.Model):
 
     def clean(self):
         from django.core.exceptions import ValidationError
-        # Normalize plate number
+        # Normalize plate number - istalgan formatni to'g'ri formatga o'tkazish
         if self.plate_number:
-            self.plate_number = ' '.join(self.plate_number.strip().upper().split())
-        
-        # Validate plate format
-        if self.plate_number and not re.match(r'^\d{2}\s[A-Z]\s\d{3}\s[A-Z]{2}$', self.plate_number):
-            raise ValidationError("Plate format bo'lishi kerak: '12 A 345 BC'.")
+            # Barcha bo'shliqlarni olib tashlash va katta harflarga o'tkazish
+            plate = self.plate_number.strip().upper().replace(' ', '')
+            
+            # Format: 2 raqam + harf + 3 raqam + 2 harf
+            if len(plate) == 8 and plate[:2].isdigit() and plate[2].isalpha() and plate[3:6].isdigit() and plate[6:8].isalpha():
+                # To'g'ri formatga o'tkazish: "12 A 345 BC"
+                self.plate_number = f"{plate[:2]} {plate[2]} {plate[3:6]} {plate[6:8]}"
+            else:
+                raise ValidationError("Plate format bo'lishi kerak: '12 A 345 BC' yoki '12A345BC'.")
 
     def save(self, *args, **kwargs):
         self.clean()

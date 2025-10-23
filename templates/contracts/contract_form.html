@@ -3,59 +3,173 @@
 {% block title %}{% if object %}Shartnomani tahrirlash{% else %}Yangi shartnoma{% endif %} - Car Rental{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto">
-    <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">
-                {% if object %}Shartnomani tahrirlash{% else %}Yangi shartnoma yaratish{% endif %}
-            </h3>
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-primary to-secondary px-6 py-8">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-file-contract text-white text-xl"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <h1 class="text-2xl font-bold text-white">
+                        {% if object %}Shartnomani tahrirlash{% else %}Yangi shartnoma yaratish{% endif %}
+                    </h1>
+                    <p class="text-blue-100 mt-1">
+                        {% if object %}Shartnoma ma'lumotlarini yangilang{% else %}Yangi shartnoma ma'lumotlarini to'ldiring{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="px-6 py-8">
             
-            <form method="post" class="space-y-6">
+            <form method="post" class="space-y-8">
                 {% csrf_token %}
                 
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
-                        <label for="{{ form.owner.id_for_label }}" class="block text-sm font-medium text-gray-700">Egasi</label>
-                        {{ form.owner }}
-                        {% if form.owner.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.owner.errors.0 }}</p>
-                        {% endif %}
+                <!-- Asosiy ma'lumotlar -->
+                <div class="space-y-6">
+                    <div class="border-b border-gray-200 pb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-info-circle text-primary mr-2"></i>
+                            Asosiy ma'lumotlar
+                        </h3>
                     </div>
                     
-                    <div>
-                        <label for="{{ form.vehicle.id_for_label }}" class="block text-sm font-medium text-gray-700">Mashina</label>
-                        {{ form.vehicle }}
-                        {% if form.vehicle.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.vehicle.errors.0 }}</p>
-                        {% endif %}
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label for="{{ form.owner.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-user text-gray-400 mr-2 text-xs"></i>
+                                Mashina egasi
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.owner }}
+                                {% if form.owner.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.owner.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.owner.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="{{ form.vehicle.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-car text-gray-400 mr-2 text-xs"></i>
+                                Mashina
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.vehicle }}
+                                {% if form.vehicle.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.vehicle.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.vehicle.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
-                        <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700">Boshlanish sanasi</label>
-                        {{ form.start_date }}
-                        {% if form.start_date.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.start_date.errors.0 }}</p>
-                        {% endif %}
+                <!-- Sana ma'lumotlari -->
+                <div class="space-y-6">
+                    <div class="border-b border-gray-200 pb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-calendar text-primary mr-2"></i>
+                            Sana ma'lumotlari
+                        </h3>
                     </div>
                     
-                    <div>
-                        <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700">Tugash sanasi (ixtiyoriy)</label>
-                        {{ form.end_date }}
-                        {% if form.end_date.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.end_date.errors.0 }}</p>
-                        {% endif %}
-                        <p class="mt-1 text-sm text-gray-500">Bo'sh qoldirilsa, shartnoma muddatsiz bo'ladi</p>
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-play text-gray-400 mr-2 text-xs"></i>
+                                Boshlanish sanasi
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.start_date.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.start_date.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-stop text-gray-400 mr-2 text-xs"></i>
+                                Tugash sanasi
+                            </label>
+                            <div class="relative">
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.end_date.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.end_date.errors.0 }}
+                                </p>
+                            {% endif %}
+                            <p class="text-xs text-gray-500">Bo'sh qoldirilsa, shartnoma muddatsiz bo'ladi</p>
+                        </div>
                     </div>
                 </div>
                 
-                <div>
-                    <label for="{{ form.pricing_type.id_for_label }}" class="block text-sm font-medium text-gray-700">To'lov turi</label>
-                    {{ form.pricing_type }}
-                    {% if form.pricing_type.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.pricing_type.errors.0 }}</p>
-                    {% endif %}
+                <!-- To'lov ma'lumotlari -->
+                <div class="space-y-6">
+                    <div class="border-b border-gray-200 pb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-dollar-sign text-primary mr-2"></i>
+                            To'lov ma'lumotlari
+                        </h3>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label for="{{ form.pricing_type.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-money-bill-wave text-gray-400 mr-2 text-xs"></i>
+                            To'lov turi
+                            <span class="text-red-500 ml-1">*</span>
+                        </label>
+                        <div class="relative">
+                            {{ form.pricing_type }}
+                            {% if form.pricing_type.errors %}
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-exclamation-circle text-red-500"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if form.pricing_type.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                {{ form.pricing_type.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
                 </div>
                 
                 <!-- Share pricing fields -->
@@ -118,14 +232,15 @@
                     {% endif %}
                 </div>
                 
-                <div class="flex justify-end space-x-3">
-                    <a href="{% url 'contract_list' %}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                <!-- Form tugmalari -->
+                <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                    <a href="{% url 'contract_list' %}" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200">
                         <i class="fas fa-times mr-2"></i>
                         Bekor qilish
                     </a>
-                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                        <i class="fas fa-save mr-2"></i>
-                        {% if object %}Yangilash{% else %}Yaratish{% endif %}
+                    <button type="submit" class="inline-flex items-center justify-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 transform hover:scale-105">
+                        <i class="fas fa-file-contract mr-2"></i>
+                        {% if object %}Shartnomani yangilash{% else %}Shartnoma yaratish{% endif %}
                     </button>
                 </div>
             </form>

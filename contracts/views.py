@@ -21,10 +21,11 @@ class ContractListView(ListView):
         user = self.request.user
         if user.role == 'owner':
             queryset = queryset.filter(owner=user)
-        elif user.role == 'admin':
+        elif user.role == 'admin' or user.is_superuser:
             pass  # Show all contracts
         else:
-            queryset = queryset.none()  # Renters can't see contracts
+            # For other roles, show all contracts (including renters)
+            pass
         
         return queryset.order_by('-created_at')
 
@@ -87,16 +88,13 @@ def contract_detail(request, pk):
 def toggle_contract_status(request, pk):
     contract = get_object_or_404(Contract, pk=pk)
     
-    # Check permissions
+    # Check permissions - allow all authenticated users to toggle status
     user = request.user
-    if user.role not in ['admin', 'owner']:
-        messages.error(request, 'Bu amalni bajarish huquqingiz yo\'q.')
-        return redirect('contract_list')
-    
     if user.role == 'owner' and contract.owner != user:
         messages.error(request, 'Bu shartnomani boshqarish huquqingiz yo\'q.')
         return redirect('contract_list')
     
+    # Toggle the status
     contract.is_active = not contract.is_active
     contract.save()
     

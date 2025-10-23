@@ -7,12 +7,13 @@ from .models import CustomUser
 
 class CustomUserCreationForm(forms.ModelForm):
     role = forms.ChoiceField(
-        choices=CustomUser.Roles.choices,
+        choices=[('', 'Rolni tanlang')] + list(CustomUser.Roles.choices),
         widget=forms.Select(attrs={
             'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2 px-3 border border-gray-300 rounded-md',
             'placeholder': 'Rolni tanlang'
         }),
-        required=True
+        required=True,
+        initial=''
     )
     phone = forms.CharField(
         max_length=30,

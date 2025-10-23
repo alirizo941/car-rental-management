@@ -5,8 +5,11 @@ from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView
+from django.http import JsonResponse
 from .forms import UserUpdateForm, CustomUserCreationForm
 from .models import CustomUser
+from vehicles.models import CarMake, CarModel, Vehicle
+import json
 
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
@@ -54,9 +57,44 @@ class UserCreateView(CreateView):
     template_name = 'accounts/user_form.html'
     success_url = reverse_lazy('users_list')
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Mashina markalarini context ga qo'shish
+        context['car_makes'] = CarMake.objects.all()
+        return context
+    
     def form_valid(self, form):
         # Form save metodini chaqirish va user, password olish
         user, generated_password = form.save()
+        
+        # Mashina ma'lumotlarini tekshirish va saqlash
+        vehicles_data = self.request.POST.get('vehicles_data')
+        if vehicles_data and user.role == 'owner':
+            try:
+                vehicles_json = json.loads(vehicles_data)
+                for vehicle_data in vehicles_json:
+                    # Vehicle obyektini yaratish
+                    vehicle = Vehicle(
+                        owner=user,
+                        make_id=vehicle_data.get('make'),
+                        model_id=vehicle_data.get('model'),
+                        name=vehicle_data.get('name', ''),
+                        plate_number=vehicle_data.get('plate_number'),
+                        year=vehicle_data.get('year'),
+                        daily_price=vehicle_data.get('daily_price'),
+                        hourly_price=vehicle_data.get('hourly_price') or None,
+                        status='available'  # Default holat - Mavjud
+                    )
+                    vehicle.save()
+            except (json.JSONDecodeError, ValueError) as e:
+                messages.warning(self.request, f'Mashina ma\'lumotlarida xatolik: {str(e)}')
+            except Exception as e:
+                # Agar plate number format noto'g'ri bo'lsa
+                if 'Plate format' in str(e):
+                    messages.error(self.request, f'Davlat raqami formati noto\'g\'ri: {str(e)}')
+                else:
+                    messages.error(self.request, f'Mashina saqlashda xatolik: {str(e)}')
+                return redirect(self.request.path)
         
         # Muvaffaqiyatli xabar
         messages.success(
