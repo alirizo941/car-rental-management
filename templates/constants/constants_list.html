@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Tizim sozlamalari - Car Rental{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Tizim sozlamalari</h1>
+                <p class="mt-1 text-sm text-gray-500">Global tizim parametrlarini boshqarish</p>
+            </div>
+        </div>
+
+        <!-- Current Settings -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Joriy sozlamalar</h3>
+                
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-calendar-day text-primary text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Minimal owner ijara kunlari</p>
+                                <p class="text-lg font-semibold text-primary">{{ constants.min_owner_rental_days }} kun</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-clock text-success text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Minimal renter ijara soatlari</p>
+                                <p class="text-lg font-semibold text-success">{{ constants.min_renter_rental_hours }} soat</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-percentage text-warning text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Kechikish foizi</p>
+                                <p class="text-lg font-semibold text-warning">{{ constants.late_fee_percent }}%</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-user text-primary text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Default egasi ulushi</p>
+                                <p class="text-lg font-semibold text-primary">{{ constants.default_owner_share_percent }}%</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-building text-secondary text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Default kompaniya ulushi</p>
+                                <p class="text-lg font-semibold text-secondary">{{ constants.default_company_share_percent }}%</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-clock text-gray-500 text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Oxirgi yangilanish</p>
+                                <p class="text-sm text-gray-500">{{ constants.updated_at|date:"d.m.Y H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Form -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">Sozlamalarni yangilash</h3>
+                
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.min_owner_rental_days.id_for_label }}" class="block text-sm font-medium text-gray-700">Minimal owner ijara kunlari</label>
+                            {{ form.min_owner_rental_days }}
+                            {% if form.min_owner_rental_days.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.min_owner_rental_days.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-sm text-gray-500">Owner bilan shartnoma uchun minimal kunlar</p>
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.min_renter_rental_hours.id_for_label }}" class="block text-sm font-medium text-gray-700">Minimal renter ijara soatlari</label>
+                            {{ form.min_renter_rental_hours }}
+                            {% if form.min_renter_rental_hours.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.min_renter_rental_hours.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-sm text-gray-500">Renter uchun minimal ijara soatlari</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.late_fee_percent.id_for_label }}" class="block text-sm font-medium text-gray-700">Kechikish foizi</label>
+                        {{ form.late_fee_percent }}
+                        {% if form.late_fee_percent.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.late_fee_percent.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Kechikkan vaqt uchun qo'shimcha foiz</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.default_owner_share_percent.id_for_label }}" class="block text-sm font-medium text-gray-700">Default egasi ulushi (%)</label>
+                            {{ form.default_owner_share_percent }}
+                            {% if form.default_owner_share_percent.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.default_owner_share_percent.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.default_company_share_percent.id_for_label }}" class="block text-sm font-medium text-gray-700">Default kompaniya ulushi (%)</label>
+                            {{ form.default_company_share_percent }}
+                            {% if form.default_company_share_percent.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.default_company_share_percent.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800">Diqqat!</h3>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <p>Egasi va kompaniya ulushlari jami 100% bo'lishi kerak. Bu sozlamalar yangi shartnomalar uchun default qiymatlar sifatida ishlatiladi.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            <i class="fas fa-save mr-2"></i>
+                            Sozlamalarni saqlash
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

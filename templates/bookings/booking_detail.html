@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking #{{ booking.id }} - Car Rental{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Booking Header -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="h-12 w-12 rounded-full bg-success flex items-center justify-center">
+                            <i class="fas fa-calendar-check text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h1 class="text-2xl font-bold text-gray-900">Booking #{{ booking.id }}</h1>
+                        <p class="text-gray-600">{{ booking.vehicle.name|default:booking.vehicle }} ({{ booking.vehicle.plate_number }})</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                        {% if booking.status == 'active' %}bg-green-100 text-green-800
+                        {% elif booking.status == 'completed' %}bg-blue-100 text-blue-800
+                        {% elif booking.status == 'cancelled' %}bg-red-100 text-red-800
+                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                        {% if booking.payment_status == 'paid' %}bg-green-100 text-green-800
+                        {% elif booking.payment_status == 'partial' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-red-100 text-red-800{% endif %}">
+                        {{ booking.get_payment_status_display }}
+                    </span>
+                    <a href="{% url 'booking_update' booking.pk %}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-secondary">
+                        <i class="fas fa-edit mr-1"></i>
+                        Tahrirlash
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Details -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <!-- Basic Information -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Asosiy ma'lumotlar</h3>
+                <dl class="space-y-3">
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">Ijara oluvchi:</dt>
+                        <dd class="text-sm text-gray-900">{{ booking.renter.get_full_name|default:booking.renter.username }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">Mashina:</dt>
+                        <dd class="text-sm text-gray-900">{{ booking.vehicle.name|default:booking.vehicle }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">Davlat raqami:</dt>
+                        <dd class="text-sm text-gray-900 font-mono">{{ booking.vehicle.plate_number }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">Boshlanish:</dt>
+                        <dd class="text-sm text-gray-900">{{ booking.start_at|date:"d.m.Y H:i" }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">Tugash:</dt>
+                        <dd class="text-sm text-gray-900">{{ booking.end_at|date:"d.m.Y H:i" }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">Davomiyligi:</dt>
+                        <dd class="text-sm text-gray-900">{{ booking.duration_hours }} soat ({{ booking.duration_days }} kun)</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">Yaratilgan:</dt>
+                        <dd class="text-sm text-gray-900">{{ booking.created_at|date:"d.m.Y H:i" }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Financial Information -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Moliyaviy ma'lumotlar</h3>
+                <dl class="space-y-3">
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">Jami narx:</dt>
+                        <dd class="text-sm text-gray-900 font-semibold text-primary">{{ booking.total_price }} so'm</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">Depozit:</dt>
+                        <dd class="text-sm text-gray-900">{{ booking.deposit_amount }} so'm</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">To'langan:</dt>
+                        <dd class="text-sm text-gray-900">{{ booking.paid_amount }} so'm</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm font-medium text-gray-500">Qoldiq:</dt>
+                        <dd class="text-sm text-gray-900 font-semibold {% if booking.total_price > booking.paid_amount %}text-red-600{% else %}text-green-600{% endif %}">
+                            {{ booking.total_price|add:booking.paid_amount|floatformat:0 }} so'm
+                        </dd>
+                    </div>
+                    <div class="border-t pt-3">
+                        <div class="flex justify-between">
+                            <dt class="text-sm font-medium text-gray-500">Egasi daromadi:</dt>
+                            <dd class="text-sm text-gray-900 font-semibold text-success">{{ booking.owner_earned }} so'm</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm font-medium text-gray-500">Kompaniya daromadi:</dt>
+                            <dd class="text-sm text-gray-900 font-semibold text-primary">{{ booking.company_earned }} so'm</dd>
+                        </div>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Management -->
+    {% if user.role == 'admin' or user.role == 'owner' %}
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Holatni boshqarish</h3>
+            
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <!-- Status Update -->
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">Booking holati</h4>
+                    <form method="post" action="{% url 'update_booking_status' booking.pk %}">
+                        {% csrf_token %}
+                        <div class="flex space-x-2">
+                            <select name="status" class="flex-1 form-control">
+                                <option value="pending" {% if booking.status == 'pending' %}selected{% endif %}>Kutilmoqda</option>
+                                <option value="active" {% if booking.status == 'active' %}selected{% endif %}>Faol</option>
+                                <option value="completed" {% if booking.status == 'completed' %}selected{% endif %}>Tugallangan</option>
+                                <option value="cancelled" {% if booking.status == 'cancelled' %}selected{% endif %}>Bekor qilingan</option>
+                            </select>
+                            <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-secondary">
+                                <i class="fas fa-save mr-1"></i>
+                                Yangilash
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Payment Status Update -->
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">To'lov holati</h4>
+                    <form method="post" action="{% url 'update_payment_status' booking.pk %}">
+                        {% csrf_token %}
+                        <div class="flex space-x-2">
+                            <select name="payment_status" class="flex-1 form-control">
+                                <option value="unpaid" {% if booking.payment_status == 'unpaid' %}selected{% endif %}>To'lanmagan</option>
+                                <option value="partial" {% if booking.payment_status == 'partial' %}selected{% endif %}>Qisman to'langan</option>
+                                <option value="paid" {% if booking.payment_status == 'paid' %}selected{% endif %}>To'langan</option>
+                            </select>
+                            <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-secondary">
+                                <i class="fas fa-save mr-1"></i>
+                                Yangilash
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

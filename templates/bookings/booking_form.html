@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Bookingni tahrirlash{% else %}Yangi booking{% endif %} - Car Rental{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">
+                {% if object %}Bookingni tahrirlash{% else %}Yangi booking yaratish{% endif %}
+            </h3>
+            
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.renter.id_for_label }}" class="block text-sm font-medium text-gray-700">Ijara oluvchi</label>
+                        {{ form.renter }}
+                        {% if form.renter.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.renter.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.vehicle.id_for_label }}" class="block text-sm font-medium text-gray-700">Mashina</label>
+                        {{ form.vehicle }}
+                        {% if form.vehicle.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.vehicle.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.start_at.id_for_label }}" class="block text-sm font-medium text-gray-700">Boshlanish vaqti</label>
+                        {{ form.start_at }}
+                        {% if form.start_at.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.start_at.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.end_at.id_for_label }}" class="block text-sm font-medium text-gray-700">Tugash vaqti</label>
+                        {{ form.end_at }}
+                        {% if form.end_at.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.end_at.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="{{ form.deposit_amount.id_for_label }}" class="block text-sm font-medium text-gray-700">Depozit miqdori (so'm)</label>
+                    {{ form.deposit_amount }}
+                    {% if form.deposit_amount.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.deposit_amount.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Ixtiyoriy</p>
+                </div>
+                
+                <!-- Price Preview -->
+                <div id="price-preview" class="bg-gray-50 p-4 rounded-md" style="display: none;">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Narx hisob-kitobi:</h4>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-500">Davomiyligi:</span>
+                            <span id="duration-text" class="font-medium text-gray-900"></span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Jami narx:</span>
+                            <span id="total-price" class="font-medium text-primary"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'booking_list' %}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <i class="fas fa-times mr-2"></i>
+                        Bekor qilish
+                    </a>
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <i class="fas fa-save mr-2"></i>
+                        {% if object %}Yangilash{% else %}Yaratish{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const vehicleSelect = document.getElementById('{{ form.vehicle.id_for_label }}');
+    const startAtInput = document.getElementById('{{ form.start_at.id_for_label }}');
+    const endAtInput = document.getElementById('{{ form.end_at.id_for_label }}');
+    const pricePreview = document.getElementById('price-preview');
+    const durationText = document.getElementById('duration-text');
+    const totalPrice = document.getElementById('total-price');
+    
+    // Vehicle data for price calculation
+    const vehiclePrices = {};
+    
+    // Populate vehicle prices from form options
+    {% for vehicle in form.vehicle.field.queryset %}
+    vehiclePrices[{{ vehicle.pk }}] = {
+        daily_price: {{ vehicle.daily_price }},
+        hourly_price: {{ vehicle.hourly_price|default:"null" }}
+    };
+    {% endfor %}
+    
+    function calculatePrice() {
+        const vehicleId = vehicleSelect.value;
+        const startAt = startAtInput.value;
+        const endAt = endAtInput.value;
+        
+        if (!vehicleId || !startAt || !endAt) {
+            pricePreview.style.display = 'none';
+            return;
+        }
+        
+        const startDate = new Date(startAt);
+        const endDate = new Date(endAt);
+        
+        if (endDate <= startDate) {
+            pricePreview.style.display = 'none';
+            return;
+        }
+        
+        const diffMs = endDate - startDate;
+        const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.ceil(diffHours / 24);
+        
+        const vehicle = vehiclePrices[vehicleId];
+        if (!vehicle) return;
+        
+        let calculatedPrice = 0;
+        let durationDisplay = '';
+        
+        if (diffHours < 24 && vehicle.hourly_price) {
+            calculatedPrice = vehicle.hourly_price * diffHours;
+            durationDisplay = `${diffHours} soat`;
+        } else {
+            calculatedPrice = vehicle.daily_price * diffDays;
+            durationDisplay = `${diffDays} kun`;
+        }
+        
+        durationText.textContent = durationDisplay;
+        totalPrice.textContent = `${calculatedPrice.toLocaleString()} so'm`;
+        pricePreview.style.display = 'block';
+    }
+    
+    vehicleSelect.addEventListener('change', calculatePrice);
+    startAtInput.addEventListener('change', calculatePrice);
+    endAtInput.addEventListener('change', calculatePrice);
+    
+    // Initial calculation if values are already set
+    calculatePrice();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,430 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Mashinani tahrirlash{% else %}Yangi mashina{% endif %} - Car Rental{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-primary to-secondary px-6 py-8">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-car text-white text-xl"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <h1 class="text-2xl font-bold text-white">
+                        {% if object %}Mashinani tahrirlash{% else %}Yangi mashina qo'shish{% endif %}
+                    </h1>
+                    <p class="text-blue-100 mt-1">
+                        {% if object %}Mashina ma'lumotlarini yangilang{% else %}Yangi mashina ma'lumotlarini to'ldiring{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="px-6 py-8">
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Asosiy ma'lumotlar -->
+                <div class="space-y-6">
+                    <div class="border-b border-gray-200 pb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-info-circle text-primary mr-2"></i>
+                            Asosiy ma'lumotlar
+                        </h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label for="{{ form.owner.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-user text-gray-400 mr-2 text-xs"></i>
+                                Mashina egasi
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.owner }}
+                                {% if form.owner.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.owner.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.owner.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="{{ form.plate_number.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-id-card text-gray-400 mr-2 text-xs"></i>
+                                Davlat raqami
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.plate_number }}
+                                {% if form.plate_number.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.plate_number.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.plate_number.errors.0 }}
+                                </p>
+                            {% endif %}
+                            <div class="bg-blue-50 border border-blue-200 rounded-md p-2">
+                                <p class="text-xs text-blue-700">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Format: 12 A 345 BC
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label for="{{ form.make.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-tags text-gray-400 mr-2 text-xs"></i>
+                                Mashina markasi
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.make }}
+                                {% if form.make.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.make.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.make.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="{{ form.model.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-cog text-gray-400 mr-2 text-xs"></i>
+                                Mashina modeli
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.model }}
+                                {% if form.model.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.model.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.model.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-car text-gray-400 mr-2 text-xs"></i>
+                                Mashina nomi
+                            </label>
+                            <div class="relative">
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.name.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.name.errors.0 }}
+                                </p>
+                            {% endif %}
+                            <p class="text-xs text-gray-500">Ixtiyoriy - mashina uchun maxsus nom</p>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="{{ form.year.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-calendar text-gray-400 mr-2 text-xs"></i>
+                                Ishlab chiqarilgan yili
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.year }}
+                                {% if form.year.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.year.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.year.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Narx ma'lumotlari -->
+                <div class="space-y-6">
+                    <div class="border-b border-gray-200 pb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-dollar-sign text-primary mr-2"></i>
+                            Narx ma'lumotlari
+                        </h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label for="{{ form.daily_price.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-calendar-day text-gray-400 mr-2 text-xs"></i>
+                                Kunlik narx (so'm)
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                {{ form.daily_price }}
+                                {% if form.daily_price.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.daily_price.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.daily_price.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="{{ form.hourly_price.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-clock text-gray-400 mr-2 text-xs"></i>
+                                Soatlik narx (so'm)
+                            </label>
+                            <div class="relative">
+                                {{ form.hourly_price }}
+                                {% if form.hourly_price.errors %}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if form.hourly_price.errors %}
+                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {{ form.hourly_price.errors.0 }}
+                                </p>
+                            {% endif %}
+                            <p class="text-xs text-gray-500">Ixtiyoriy - qisqa muddatli ijara uchun</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Holat -->
+                <div class="space-y-6">
+                    <div class="border-b border-gray-200 pb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-check-circle text-primary mr-2"></i>
+                            Mashina holati
+                        </h3>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-list text-gray-400 mr-2 text-xs"></i>
+                            Holat
+                            <span class="text-red-500 ml-1">*</span>
+                        </label>
+                        <div class="relative max-w-md">
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-exclamation-circle text-red-500"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if form.status.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                {{ form.status.errors.0 }}
+                            </p>
+                        {% endif %}
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-blue-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-blue-800">Holat haqida ma'lumot:</h4>
+                                    <div class="mt-2 text-sm text-blue-700">
+                                        <p><span class="font-semibold">Available</span> - Ijaraga berish mumkin</p>
+                                        <p><span class="font-semibold">Rented</span> - Hozir ijara ostida</p>
+                                        <p><span class="font-semibold">Maintenance</span> - Texnik xizmat ko'rsatilmoqda</p>
+                                        <p><span class="font-semibold">Out of Service</span> - Xizmatdan chiqarilgan</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form tugmalari -->
+                <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                    <a href="{% url 'vehicle_list' %}" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200">
+                        <i class="fas fa-times mr-2"></i>
+                        Bekor qilish
+                    </a>
+                    <button type="submit" class="inline-flex items-center justify-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 transform hover:scale-105">
+                        <i class="fas fa-car mr-2"></i>
+                        {% if object %}Mashinani yangilash{% else %}Mashinani qo'shish{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Input focus effektlari
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('ring-2', 'ring-primary', 'ring-opacity-50');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('ring-2', 'ring-primary', 'ring-opacity-50');
+        });
+    });
+    
+    // Form validatsiyasi
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Majburiy maydonlarni tekshirish
+        const requiredFields = ['owner', 'plate_number', 'make', 'model', 'year', 'daily_price', 'status'];
+        requiredFields.forEach(fieldName => {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (field && !field.value.trim()) {
+                isValid = false;
+                field.classList.add('border-red-500');
+            } else if (field) {
+                field.classList.remove('border-red-500');
+            }
+        });
+        
+        // Yil validatsiyasi
+        const yearField = document.querySelector('[name="year"]');
+        if (yearField && yearField.value) {
+            const year = parseInt(yearField.value);
+            const currentYear = new Date().getFullYear();
+            if (year < 1900 || year > currentYear + 1) {
+                isValid = false;
+                yearField.classList.add('border-red-500');
+            }
+        }
+        
+        // Narx validatsiyasi
+        const dailyPriceField = document.querySelector('[name="daily_price"]');
+        if (dailyPriceField && dailyPriceField.value) {
+            const price = parseFloat(dailyPriceField.value);
+            if (price < 0) {
+                isValid = false;
+                dailyPriceField.classList.add('border-red-500');
+            }
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Iltimos, barcha majburiy maydonlarni (*) to\'ldiring va to\'g\'ri ma\'lumotlar kiriting!');
+        }
+    });
+    
+    // Plate number format validatsiyasi
+    const plateField = document.querySelector('[name="plate_number"]');
+    if (plateField) {
+        plateField.addEventListener('blur', function() {
+            const plate = this.value.trim().toUpperCase();
+            const plateRegex = /^\d{2}\s[A-Z]\s\d{3}\s[A-Z]{2}$/;
+            
+            if (plate && !plateRegex.test(plate)) {
+                this.classList.add('border-yellow-500');
+                if (!this.parentElement.querySelector('.plate-warning')) {
+                    const warningDiv = document.createElement('p');
+                    warningDiv.className = 'mt-1 text-sm text-yellow-600 plate-warning';
+                    warningDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>Format: 12 A 345 BC';
+                    this.parentElement.appendChild(warningDiv);
+                }
+            } else {
+                this.classList.remove('border-yellow-500');
+                const warningDiv = this.parentElement.querySelector('.plate-warning');
+                if (warningDiv) {
+                    warningDiv.remove();
+                }
+            }
+        });
+    }
+    
+    // Marka tanlanganda model yangilash
+    const makeField = document.querySelector('[name="make"]');
+    const modelField = document.querySelector('[name="model"]');
+    
+    if (makeField && modelField) {
+        makeField.addEventListener('change', function() {
+            const makeId = this.value;
+            
+            // Model maydonini tozalash
+            modelField.innerHTML = '<option value="">Modelni tanlang</option>';
+            
+            if (makeId) {
+                // Loading ko'rsatish
+                modelField.innerHTML = '<option value="">Yuklanmoqda...</option>';
+                modelField.disabled = true;
+                
+                // AJAX so'rov
+                fetch(`/vehicles/ajax/get-models/?make_id=${makeId}`)
+                    .then(response => response.json())
+                    .then(models => {
+                        // Model maydonini yangilash
+                        modelField.innerHTML = '<option value="">Modelni tanlang</option>';
+                        
+                        models.forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model.id;
+                            option.textContent = model.name;
+                            modelField.appendChild(option);
+                        });
+                        
+                        modelField.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error loading models:', error);
+                        modelField.innerHTML = '<option value="">Xatolik yuz berdi</option>';
+                        modelField.disabled = false;
+                    });
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Shartnomalar - Car Rental{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Shartnomalar</h1>
+            <p class="mt-1 text-sm text-gray-500">Barcha shartnomalar ro'yxati</p>
+        </div>
+        <a href="{% url 'contract_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            <i class="fas fa-plus mr-2"></i>
+            Yangi shartnoma
+        </a>
+    </div>
+
+    <!-- Contracts List -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <ul class="divide-y divide-gray-200">
+            {% for contract in contracts %}
+            <li>
+                <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="h-10 w-10 rounded-full bg-warning flex items-center justify-center">
+                                    <i class="fas fa-file-contract text-white"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="flex items-center">
+                                    <h3 class="text-lg font-medium text-gray-900">
+                                        {{ contract.vehicle.name|default:contract.vehicle }} ({{ contract.vehicle.plate_number }})
+                                    </h3>
+                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if contract.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {% if contract.is_active %}Faol{% else %}Nofaol{% endif %}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-500">
+                                    Egasi: {{ contract.owner.get_full_name|default:contract.owner.username }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ contract.start_date|date:"d.m.Y" }} - {{ contract.end_date|date:"d.m.Y"|default:"Hozirgacha" }}
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    {{ contract.get_pricing_type_display }}
+                                    {% if contract.pricing_type == 'share' %}
+                                    ({{ contract.owner_share_percent }}% / {{ contract.company_share_percent }}%)
+                                    {% else %}
+                                    ({{ contract.fixed_payout_amount }} so'm)
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <a href="{% url 'contract_detail' contract.pk %}" class="text-primary hover:text-secondary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'contract_update' contract.pk %}" class="text-warning hover:text-yellow-600">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'contract_delete' contract.pk %}" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% empty %}
+            <li>
+                <div class="text-center py-12">
+                    <i class="fas fa-file-contract text-gray-400 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Shartnomalar topilmadi</h3>
+                    <p class="text-gray-500">Hozircha hech qanday shartnoma mavjud emas.</p>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="flex-1 flex justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Oldingi
+            </a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Keyingi
+            </a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    <span class="font-medium">{{ page_obj.start_index }}</span>
+                    dan
+                    <span class="font-medium">{{ page_obj.end_index }}</span>
+                    gacha, jami
+                    <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                    ta
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-primary bg-primary text-sm font-medium text-white">
+                            {{ num }}
+                        </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ num }}
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

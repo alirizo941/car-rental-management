@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil - Car Rental{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">Profil ma'lumotlari</h3>
+            
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Ism</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Familiya</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700">Telefon raqami</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 rounded-md">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-tag text-gray-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-700">
+                                <span class="font-medium">Rol:</span> {{ user.get_role_display }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <i class="fas fa-save mr-2"></i>
+                        Saqlash
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Bookinglar - Car Rental{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Ijaralar</h1>
+            <p class="mt-1 text-sm text-gray-500">Barcha ijaralar ro'yxati</p>
+        </div>
+        <a href="{% url 'booking_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            <i class="fas fa-plus mr-2"></i>
+            Yangi ijara
+        </a>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <form method="get" class="space-y-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                    <div>
+                        <label for="{{ search_form.search.id_for_label }}" class="block text-sm font-medium text-gray-700">Qidirish</label>
+                        {{ search_form.search }}
+                    </div>
+                    <div>
+                        <label for="{{ search_form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">Holat</label>
+                        {{ search_form.status }}
+                    </div>
+                    <div>
+                        <label for="{{ search_form.payment_status.id_for_label }}" class="block text-sm font-medium text-gray-700">To'lov holati</label>
+                        {{ search_form.payment_status }}
+                    </div>
+                    <div>
+                        <label for="{{ search_form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700">Boshlanish sanasi</label>
+                        {{ search_form.start_date }}
+                    </div>
+                    <div>
+                        <label for="{{ search_form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700">Tugash sanasi</label>
+                        {{ search_form.end_date }}
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary">
+                        <i class="fas fa-search mr-2"></i>
+                        Qidirish
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bookings List -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <ul class="divide-y divide-gray-200">
+            {% for booking in bookings %}
+            <li>
+                <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="h-10 w-10 rounded-full bg-success flex items-center justify-center">
+                                    <i class="fas fa-calendar-check text-white"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="flex items-center">
+                                    <h3 class="text-lg font-medium text-gray-900">
+                                        Ijara #{{ booking.id }}
+                                    </h3>
+                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if booking.status == 'active' %}bg-green-100 text-green-800
+                                        {% elif booking.status == 'completed' %}bg-blue-100 text-blue-800
+                                        {% elif booking.status == 'cancelled' %}bg-red-100 text-red-800
+                                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if booking.payment_status == 'paid' %}bg-green-100 text-green-800
+                                        {% elif booking.payment_status == 'partial' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ booking.get_payment_status_display }}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-500">
+                                    {{ booking.vehicle.name|default:booking.vehicle }} ({{ booking.vehicle.plate_number }})
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    {{ booking.renter.get_full_name|default:booking.renter.username }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ booking.start_at|date:"d.m.Y H:i" }} - {{ booking.end_at|date:"d.m.Y H:i" }}
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    {{ booking.duration_hours }} soat ({{ booking.duration_days }} kun)
+                                </p>
+                                <p class="text-sm font-semibold text-primary">
+                                    {{ booking.total_price }} so'm
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <a href="{% url 'booking_detail' booking.pk %}" class="text-primary hover:text-secondary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'booking_update' booking.pk %}" class="text-warning hover:text-yellow-600">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'booking_delete' booking.pk %}" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% empty %}
+            <li>
+                <div class="text-center py-12">
+                    <i class="fas fa-calendar-check text-gray-400 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Ijaralar topilmadi</h3>
+                    <p class="text-gray-500">Hozircha hech qanday ijaralar mavjud emas.</p>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="flex-1 flex justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Oldingi
+            </a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Keyingi
+            </a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    <span class="font-medium">{{ page_obj.start_index }}</span>
+                    dan
+                    <span class="font-medium">{{ page_obj.end_index }}</span>
+                    gacha, jami
+                    <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                    ta
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-primary bg-primary text-sm font-medium text-white">
+                            {{ num }}
+                        </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ num }}
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

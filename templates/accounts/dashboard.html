@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Car Rental{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Welcome Section -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
+                        <span class="text-white text-xl font-bold">{{ user.username|first|upper }}</span>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        Admin Panel - {{ user.get_full_name|default:user.username }}
+                    </h1>
+                    <p class="text-gray-600">Car Rental Management System</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-users text-primary text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Jami mijozlar</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ total_users }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-car text-primary text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Jami mashinalar</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ total_vehicles }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-calendar-check text-success text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Jami bookinglar</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ total_bookings }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-file-contract text-warning text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Jami shartnomalar</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ total_contracts }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mijozlar tafsilotlari -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user-tie text-blue-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Mashina egalari</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ owner_count }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user text-green-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Ijara oluvchilar</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ renter_count }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Tezkor amallar</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <a href="{% url 'users_list' %}" class="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary rounded-lg border border-gray-200 hover:border-primary">
+                    <div>
+                        <span class="rounded-lg inline-flex p-3 bg-primary text-white">
+                            <i class="fas fa-users text-xl"></i>
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium">
+                            <span class="absolute inset-0" aria-hidden="true"></span>
+                            Mijozlar
+                        </h3>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Mijozlar ro'yxatini ko'rish va boshqarish
+                        </p>
+                    </div>
+                </a>
+
+                <a href="{% url 'vehicle_list' %}" class="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary rounded-lg border border-gray-200 hover:border-primary">
+                    <div>
+                        <span class="rounded-lg inline-flex p-3 bg-primary text-white">
+                            <i class="fas fa-car text-xl"></i>
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium">
+                            <span class="absolute inset-0" aria-hidden="true"></span>
+                            Mashinalar
+                        </h3>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Mashinalar ro'yxatini ko'rish va boshqarish
+                        </p>
+                    </div>
+                </a>
+
+                {% if user.role == 'admin' or user.role == 'owner' %}
+                <a href="{% url 'contract_list' %}" class="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary rounded-lg border border-gray-200 hover:border-primary">
+                    <div>
+                        <span class="rounded-lg inline-flex p-3 bg-warning text-white">
+                            <i class="fas fa-file-contract text-xl"></i>
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium">
+                            <span class="absolute inset-0" aria-hidden="true"></span>
+                            Shartnomalar
+                        </h3>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Shartnomalarni ko'rish va boshqarish
+                        </p>
+                    </div>
+                </a>
+                {% endif %}
+
+                <a href="{% url 'booking_list' %}" class="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary rounded-lg border border-gray-200 hover:border-primary">
+                    <div>
+                        <span class="rounded-lg inline-flex p-3 bg-success text-white">
+                            <i class="fas fa-calendar-check text-xl"></i>
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium">
+                            <span class="absolute inset-0" aria-hidden="true"></span>
+                            Bookinglar
+                        </h3>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Bookinglarni ko'rish va boshqarish
+                        </p>
+                    </div>
+                </a>
+
+                {% if user.role == 'admin' %}
+                <a href="{% url 'constants_list' %}" class="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary rounded-lg border border-gray-200 hover:border-primary">
+                    <div>
+                        <span class="rounded-lg inline-flex p-3 bg-gray-600 text-white">
+                            <i class="fas fa-cog text-xl"></i>
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium">
+                            <span class="absolute inset-0" aria-hidden="true"></span>
+                            Sozlamalar
+                        </h3>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Tizim sozlamalarini boshqarish
+                        </p>
+                    </div>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

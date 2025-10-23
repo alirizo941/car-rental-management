@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Mashinalar - Car Rental{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Mashinalar</h1>
+            <p class="mt-1 text-sm text-gray-500">Barcha mashinalar ro'yxati</p>
+        </div>
+        <a href="{% url 'vehicle_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            <i class="fas fa-plus mr-2"></i>
+            Yangi mashina
+        </a>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <form method="get" class="space-y-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                    <div>
+                        <label for="{{ search_form.search.id_for_label }}" class="block text-sm font-medium text-gray-700">Qidirish</label>
+                        {{ search_form.search }}
+                    </div>
+                    <div>
+                        <label for="{{ search_form.make.id_for_label }}" class="block text-sm font-medium text-gray-700">Marka</label>
+                        {{ search_form.make }}
+                    </div>
+                    <div>
+                        <label for="{{ search_form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">Holat</label>
+                        {{ search_form.status }}
+                    </div>
+                    <div>
+                        <label for="{{ search_form.min_price.id_for_label }}" class="block text-sm font-medium text-gray-700">Min narx</label>
+                        {{ search_form.min_price }}
+                    </div>
+                    <div>
+                        <label for="{{ search_form.max_price.id_for_label }}" class="block text-sm font-medium text-gray-700">Max narx</label>
+                        {{ search_form.max_price }}
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary">
+                        <i class="fas fa-search mr-2"></i>
+                        Qidirish
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Vehicles Grid -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {% for vehicle in vehicles %}
+        <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                                <i class="fas fa-car text-white"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">{{ vehicle.name|default:vehicle }}</h3>
+                            <p class="text-sm text-gray-500">{{ vehicle.plate_number }}</p>
+                        </div>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        {% if vehicle.status == 'available' %}bg-green-100 text-green-800
+                        {% elif vehicle.status == 'rented' %}bg-red-100 text-red-800
+                        {% elif vehicle.status == 'maintenance' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ vehicle.get_status_display }}
+                    </span>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Marka:</span>
+                        <span class="font-medium">{{ vehicle.make|default:"N/A" }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Model:</span>
+                        <span class="font-medium">{{ vehicle.model|default:"N/A" }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Yil:</span>
+                        <span class="font-medium">{{ vehicle.year|default:"N/A" }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Kunlik narx:</span>
+                        <span class="font-medium text-primary">{{ vehicle.daily_price }} so'm</span>
+                    </div>
+                    {% if vehicle.hourly_price %}
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Soatlik narx:</span>
+                        <span class="font-medium text-primary">{{ vehicle.hourly_price }} so'm</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Egasi:</span>
+                        <span class="font-medium">{{ vehicle.owner.get_full_name|default:vehicle.owner.username }}</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex justify-between">
+                    <a href="{% url 'vehicle_detail' vehicle.pk %}" class="text-primary hover:text-secondary text-sm font-medium">
+                        <i class="fas fa-eye mr-1"></i>
+                        Ko'rish
+                    </a>
+                    <a href="{% url 'vehicle_update' vehicle.pk %}" class="text-warning hover:text-yellow-600 text-sm font-medium">
+                        <i class="fas fa-edit mr-1"></i>
+                        Tahrirlash
+                    </a>
+                    <a href="{% url 'vehicle_delete' vehicle.pk %}" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                        <i class="fas fa-trash mr-1"></i>
+                        O'chirish
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <i class="fas fa-car text-gray-400 text-4xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Mashinalar topilmadi</h3>
+            <p class="text-gray-500">Hozircha hech qanday mashina mavjud emas.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="flex-1 flex justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Oldingi
+            </a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Keyingi
+            </a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    <span class="font-medium">{{ page_obj.start_index }}</span>
+                    dan
+                    <span class="font-medium">{{ page_obj.end_index }}</span>
+                    gacha, jami
+                    <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                    ta
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-primary bg-primary text-sm font-medium text-white">
+                            {{ num }}
+                        </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ num }}
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
