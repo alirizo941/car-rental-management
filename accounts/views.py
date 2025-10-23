@@ -27,7 +27,7 @@ def profile(request):
             return redirect('profile')
     else:
         form = UserUpdateForm(instance=request.user)
-    
+      
     return render(request, 'accounts/profile.html', {'form': form})
 
 def logout_view(request):
