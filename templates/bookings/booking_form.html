@@ -13,6 +13,25 @@
             <form method="post" class="space-y-6">
                 {% csrf_token %}
                 
+                <!-- Display form errors -->
+                {% if form.non_field_errors %}
+                    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">Xatolik</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    {% for error in form.non_field_errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                         <label for="{{ form.renter.id_for_label }}" class="block text-sm font-medium text-gray-700">Ijara oluvchi</label>
@@ -131,22 +150,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const diffDays = Math.ceil(diffHours / 24);
         
         const vehicle = vehiclePrices[vehicleId];
-        if (!vehicle) return;
+        if (!vehicle) {
+            pricePreview.style.display = 'none';
+            return;
+        }
         
         let calculatedPrice = 0;
         let durationDisplay = '';
         
-        if (diffHours < 24 && vehicle.hourly_price) {
-            calculatedPrice = vehicle.hourly_price * diffHours;
-            durationDisplay = `${diffHours} soat`;
-        } else {
-            calculatedPrice = vehicle.daily_price * diffDays;
-            durationDisplay = `${diffDays} kun`;
+        try {
+            if (diffHours < 24 && vehicle.hourly_price && vehicle.hourly_price > 0) {
+                calculatedPrice = vehicle.hourly_price * diffHours;
+                durationDisplay = `${diffHours} soat`;
+            } else {
+                calculatedPrice = vehicle.daily_price * diffDays;
+                durationDisplay = `${diffDays} kun`;
+            }
+            
+            durationText.textContent = durationDisplay;
+            totalPrice.textContent = `${calculatedPrice.toLocaleString()} so'm`;
+            pricePreview.style.display = 'block';
+        } catch (error) {
+            console.error('Price calculation error:', error);
+            pricePreview.style.display = 'none';
         }
-        
-        durationText.textContent = durationDisplay;
-        totalPrice.textContent = `${calculatedPrice.toLocaleString()} so'm`;
-        pricePreview.style.display = 'block';
     }
     
     vehicleSelect.addEventListener('change', calculatePrice);

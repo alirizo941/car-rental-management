@@ -8,3 +8,7 @@ __pycache__/
 *.pywz
 *.pyzw
 *.pyz
+__pycache__/
+*.pyc
+db.sqlite3
+/staticfiles/

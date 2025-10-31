@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from decimal import Decimal
 from .models import Booking
 from .forms import BookingForm, BookingSearchForm
 
@@ -13,22 +14,9 @@ class BookingListView(ListView):
     template_name = 'bookings/booking_list.html'
     context_object_name = 'bookings'
     paginate_by = 20
-
+    
     def get_queryset(self):
-        queryset = Booking.objects.select_related('renter', 'vehicle', 'vehicle__make', 'vehicle__model')
-        
-        # Filter by user role
-        user = self.request.user
-        if user.role == 'renter':
-            queryset = queryset.filter(renter=user)
-        elif user.role == 'owner':
-            queryset = queryset.filter(vehicle__owner=user)
-        elif user.role == 'admin':
-            pass  # Show all bookings
-        else:
-            queryset = queryset.none()
-        
-        # Apply search filters
+        queryset = super().get_queryset()
         search_form = BookingSearchForm(self.request.GET)
         if search_form.is_valid():
             search = search_form.cleaned_data.get('search')
@@ -37,28 +25,20 @@ class BookingListView(ListView):
             start_date = search_form.cleaned_data.get('start_date')
             end_date = search_form.cleaned_data.get('end_date')
             
+            filters = Q()
             if search:
-                queryset = queryset.filter(
-                    Q(vehicle__name__icontains=search) |
-                    Q(vehicle__plate_number__icontains=search) |
-                    Q(renter__username__icontains=search) |
-                    Q(renter__first_name__icontains=search) |
-                    Q(renter__last_name__icontains=search)
-                )
-            
+                filters |= Q(vehicle__make__icontains=search) | Q(vehicle__model__icontains=search) | Q(customer_name__icontains=search) | Q(phone_number__icontains=search) | Q(vehicle__plate_number__icontains=search) | Q(renter__username__icontains=search) | Q(renter__first_name__icontains=search) | Q(renter__last_name__icontains=search)
             if status:
-                queryset = queryset.filter(status=status)
-            
+                filters &= Q(status=status)
             if payment_status:
-                queryset = queryset.filter(payment_status=payment_status)
-            
+                filters &= Q(payment_status=payment_status)
             if start_date:
-                queryset = queryset.filter(start_at__date__gte=start_date)
-            
+                filters &= Q(start_date__gte=start_date)
             if end_date:
-                queryset = queryset.filter(end_at__date__lte=end_date)
-        
-        return queryset.order_by('-created_at')
+                filters &= Q(end_date__lte=end_date)
+                
+            queryset = queryset.filter(filters)
+        return queryset.order_by('-created_at', '-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -72,8 +52,57 @@ class BookingCreateView(CreateView):
     success_url = reverse_lazy('booking_list')
 
     def form_valid(self, form):
-        messages.success(self.request, 'Booking muvaffaqiyatli yaratildi!')
-        return super().form_valid(form)
+        try:
+            # Save the booking with default status
+            booking = form.save(commit=False)
+            booking.status = 'pending'  # Default status
+            
+            # Set default values if not provided
+            if not booking.deposit_amount:
+                booking.deposit_amount = Decimal('0.00')
+            if not booking.paid_amount:
+                booking.paid_amount = Decimal('0.00')
+                
+            booking.save()
+            form.save_m2m()  # In case there are many-to-many fields
+            
+            # Get vehicle display name safely
+            vehicle_name = booking.vehicle.name if hasattr(booking.vehicle, 'name') and booking.vehicle.name else str(booking.vehicle)
+            plate_number = booking.vehicle.plate_number if hasattr(booking.vehicle, 'plate_number') else ''
+            
+            messages.success(
+                self.request, 
+                f'Yangi ijara #{booking.id} muvaffaqiyatli yaratildi! ' \
+                f'Mashina: {vehicle_name} ({plate_number})',
+                extra_tags='success'
+            )
+            return redirect('booking_list')
+            
+        except Exception as e:
+            import traceback
+            error_message = f'Xatolik yuz berdi: {str(e)}\n{traceback.format_exc()}'
+            messages.error(self.request, error_message, extra_tags='danger')
+            return self.form_invalid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy('booking_list')
+
+    def form_invalid(self, form):
+        # Log form errors for debugging
+        for field, errors in form.errors.items():
+            field_name = form.fields[field].label if field in form.fields else field
+            for error in errors:
+                messages.error(
+                    self.request, 
+                    f'{field_name}: {error}',
+                    extra_tags='danger'
+                )
+        return super().form_invalid(form)
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Yangi ijara qo\'shish'
+        return context
 
 class BookingUpdateView(UpdateView):
     model = Booking

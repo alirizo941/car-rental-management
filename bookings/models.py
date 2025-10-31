@@ -1,10 +1,12 @@
 from django.db import models
+from django.db.models import Sum
 from accounts.models import CustomUser
 from vehicles.models import Vehicle
 from contracts.models import Contract
 from decimal import Decimal
 import math
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 class Booking(models.Model):
     STATUS_CHOICES = [
@@ -20,6 +22,13 @@ class Booking(models.Model):
         ("paid", "Paid"),
     ]
     
+    PAYMENT_TYPES = [
+        ('deposit', 'Depozit'),
+        ('advance', 'Oldindan to\'lov'),
+        ('final', 'Yakuniy to\'lov'),
+        ('other', 'Boshqa')
+    ]
+    
     renter = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="bookings")
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name="bookings")
     start_at = models.DateTimeField()
@@ -27,12 +36,42 @@ class Booking(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default="unpaid")
     
-    total_price = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
-    deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
-    paid_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    total_price = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        default=Decimal("0.00"),
+        blank=True,
+        null=True
+    )
+    deposit_amount = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=Decimal("0.00"),
+        blank=True,
+        null=True
+    )
+    paid_amount = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        default=Decimal("0.00"),
+        blank=True,
+        null=True
+    )
     
-    owner_earned = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
-    company_earned = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    owner_earned = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        default=Decimal("0.00"),
+        blank=True,
+        null=True
+    )
+    company_earned = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        default=Decimal("0.00"),
+        blank=True,
+        null=True
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -52,6 +91,9 @@ class Booking(models.Model):
 
     def calculate_total_price(self):
         """Calculate total price based on vehicle pricing and duration"""
+        if not self.vehicle or not self.start_at or not self.end_at:
+            return Decimal("0.00")
+            
         hours = self.duration_hours()
         days = self.duration_days()
         
@@ -112,10 +154,56 @@ class Booking(models.Model):
         except:
             pass
 
-    def save(self, *args, **kwargs):
-        # Calculate total price and earnings before saving
-        self.total_price = self.calculate_total_price()
-        self.calculate_earnings()
+    def update_payment_status(self):
+        """Update payment status based on paid amount"""
+        total_paid = self.payments.aggregate(Sum('amount'))['amount__sum'] or 0
+        self.paid_amount = total_paid
         
-        self.clean()
+        if self.paid_amount >= self.total_price:
+            self.payment_status = 'paid'
+        elif self.paid_amount > 0:
+            self.payment_status = 'partial'
+        else:
+            self.payment_status = 'unpaid'
+
+    def save(self, *args, **kwargs):
+        is_new = not self.pk
+        
+        # Calculate total price for new bookings
+        if is_new:
+            self.calculate_total_price()
+            
+        # Save the booking first to get a primary key
         super().save(*args, **kwargs)
+        
+        # Update payment status if needed (only for existing bookings)
+        if not is_new and not hasattr(self, '_payment_status_updated'):
+            self.update_payment_status()
+            # Save again if payment status was updated
+            if hasattr(self, '_payment_status_updated'):
+                super().save(update_fields=['payment_status', 'paid_amount'])
+        
+        # Update vehicle status based on booking status
+        if hasattr(self, 'vehicle'):
+            if self.status == 'active':
+                self.vehicle.status = 'rented'
+            elif self.status in ['completed', 'cancelled']:
+                self.vehicle.status = 'available'
+            self.vehicle.save(update_fields=['status'])
+
+    def add_payment(self, amount, payment_type='advance', payment_method='cash', notes='', created_by=None):
+        """Add a payment to this booking"""
+        from .payment_models import Payment
+        
+        payment = Payment.objects.create(
+            booking=self,
+            amount=amount,
+            payment_type=payment_type,
+            payment_method=payment_method,
+            notes=notes,
+            created_by=created_by
+        )
+        
+        self.update_payment_status()
+        self.save()
+        return payment

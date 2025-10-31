@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'To\'lovlar tarixi' %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold">
+                    {% trans 'To\'lovlar tarixi' %}
+                    {% if booking %}
+                        <div class="text-sm font-normal text-gray-600 mt-1">
+                            {{ booking.vehicle }} | {{ booking.renter.get_full_name|default:booking.renter.username }}
+                        </div>
+                    {% endif %}
+                </h1>
+                {% if booking %}
+                    <a href="{% url 'bookings:add-payment' booking.id %}" 
+                       class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                        {% trans 'Yangi to\'lov' %}
+                    </a>
+                {% endif %}
+            </div>
+            
+            {% if booking %}
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-blue-50 p-3 rounded">
+                    <div class="text-sm text-gray-600">{% trans 'Umumiy narx' %}</div>
+                    <div class="text-lg font-semibold">{{ booking.total_price|floatformat:0 }} {% trans 'so\'m' %}</div>
+                </div>
+                <div class="bg-green-50 p-3 rounded">
+                    <div class="text-sm text-gray-600">{% trans 'To\'langan' %}</div>
+                    <div class="text-lg font-semibold">{{ booking.paid_amount|floatformat:0 }} {% trans 'so\'m' %}</div>
+                </div>
+                <div class="{% if booking.paid_amount < booking.total_price %}bg-yellow-50{% else %}bg-green-100{% endif %} p-3 rounded">
+                    <div class="text-sm text-gray-600">{% trans 'Qoldiq' %}</div>
+                    <div class="text-lg font-semibold">{{ booking.total_price|sub:booking.paid_amount|floatformat:0 }} {% trans 'so\'m' %}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'Sana' %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'Miqdor' %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'To\'lov turi' %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'Usuli' %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'Izoh' %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans 'Kim tomonidan' %}</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for payment in payments %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ forloop.counter }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ payment.created_at|date:"d.m.Y H:i" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ payment.amount|floatformat:0 }} {% trans 'so\'m' %}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ payment.get_payment_type_display }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ payment.get_payment_method_display }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ payment.notes|default:"-"|truncatechars:30 }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ payment.created_by.get_full_name|default:payment.created_by.username }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                            {% trans 'To\'lovlar mavjud emas' %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% if payments %}
+                <tfoot class="bg-gray-50">
+                    <tr>
+                        <th colspan="2" class="px-6 py-3 text-right text-sm font-medium text-gray-700">{% trans 'Jami' %}:</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">{{ total_paid|floatformat:0 }} {% trans 'so\'m' %}</th>
+                        <th colspan="4"></th>
+                    </tr>
+                </tfoot>
+                {% endif %}
+            </table>
+        </div>
+        
+        {% if is_paginated %}
+        <div class="px-6 py-4 bg-white border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    {% blocktrans with page_obj.start_index as start and page_obj.end_index as end and page_obj.paginator.count as total %}
+                        Showing {{ start }} to {{ end }} of {{ total }} entries
+                    {% endblocktrans %}
+                </div>
+                <div class="flex space-x-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="px-3 py-1 border rounded">&laquo; {% trans 'Birinchi' %}</a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 border rounded">{% trans 'Oldingi' %}</a>
+                    {% endif %}
+                    
+                    <span class="px-3 py-1 border rounded bg-blue-100">
+                        {% trans 'Sahifa' %} {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                    </span>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 border rounded">{% trans 'Keyingi' %}</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 border rounded">{% trans 'Oxirgi' %} &raquo;</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
